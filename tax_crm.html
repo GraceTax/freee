@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>税理士CRM</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Hiragino Sans',Meiryo,sans-serif;background:#F5F5F0;color:#1A1A1A;font-size:14px}
+:root{--green:#1D9E75;--green-dk:#0F6E56;--border:#E2E0D8;--bg:#F5F5F0;--bg2:#FFFFFF;--bg3:#F0EFEA;--text:#1A1A1A;--text2:#6B6966;--text3:#9C9A96}
+
+/* LAYOUT */
+.app{display:flex;height:100vh;min-height:600px}
+.sidebar{width:210px;min-width:210px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* SIDEBAR */
+.logo{padding:16px 18px;border-bottom:1px solid var(--border)}
+.logo-t{font-size:15px;font-weight:700;color:var(--text)}
+.logo-s{font-size:11px;color:var(--text2);margin-top:2px}
+.nav-sec{padding:16px 14px 4px;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.1em}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text2);margin:1px 6px;transition:all .15s}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:#EAF5F1;color:var(--green);font-weight:600}
+.sidebar-foot{margin-top:auto;padding:12px;border-top:1px solid var(--border);background:#fff}
+.uinfo{display:flex;align-items:center;gap:8px}
+.av{width:30px;height:30px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#185FA5;flex-shrink:0}
+
+/* TOPBAR */
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar h1{font-size:16px;font-weight:700;color:var(--text);flex:1}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn:hover{background:var(--bg3)}
+.btn-p{background:var(--green);border-color:var(--green-dk);color:#fff;font-weight:600}
+.btn-p:hover{background:var(--green-dk)}
+.btn-sm{padding:4px 10px;font-size:12px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.scard{background:#fff;border-radius:10px;border:1px solid var(--border);padding:14px 16px}
+.scard-l{font-size:12px;color:var(--text2);margin-bottom:6px}
+.scard-v{font-size:22px;font-weight:700;color:var(--text)}
+.scard-s{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* TABLES */
+.sec-t{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px}
+.tbl-wrap{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{font-size:11px;color:var(--text2);font-weight:700;padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;background:var(--bg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.04em}
+td{font-size:13px;color:var(--text);padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAF8}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.bg{background:#EAF5F0;color:#0F6E56}
+.ba{background:#FEF3E2;color:#954E0E}
+.br{background:#FDECEC;color:#9B2929}
+.bb{background:#EBF3FD;color:#1555A0}
+.bgr{background:#F0EFEA;color:#5A5856}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* TASK */
+.task-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.task-item:last-child{border-bottom:none}
+.chk{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.chk.done{background:var(--green);border-color:var(--green-dk)}
+.tab-bar{display:flex;gap:2px;margin-bottom:16px;background:#fff;border:1px solid var(--border);padding:3px;border-radius:8px;width:fit-content}
+.tab{padding:5px 16px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--text2);transition:all .15s}
+.tab.active{background:var(--green);color:#fff;font-weight:600}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:#F5F5F0;display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:36px 32px;width:380px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.hint-box{background:var(--bg3);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--text2);margin-bottom:18px;line-height:1.7;border:1px solid var(--border)}
+
+/* MODAL */
+#modal-screen{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9000;
+  background:rgba(10,10,10,0.65);
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+#modal-screen.open{display:flex}
+.modal-card{
+  background:#ffffff;
+  border-radius:12px;
+  border:1px solid #C8C6BE;
+  width:100%;
+  max-width:520px;
+  max-height:calc(100vh - 80px);
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.12);
+  overflow:hidden;
+}
+.modal-hd{
+  padding:18px 22px;
+  border-bottom:1px solid #E2E0D8;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#F7F6F2;
+  flex-shrink:0;
+}
+.modal-hd h2{font-size:15px;font-weight:700;color:#1A1A1A}
+.modal-body{
+  padding:22px 24px;
+  overflow-y:auto;
+  background:#ffffff;
+  flex:1;
+}
+.modal-ft{
+  padding:16px 22px;
+  border-top:1px solid #E2E0D8;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  background:#F7F6F2;
+  flex-shrink:0;
+}
+
+/* FORM */
+.f-row{margin-bottom:16px}
+.f-label{font-size:13px;color:#1A1A1A;margin-bottom:6px;display:block;font-weight:600}
+.req{color:#C0392B;margin-left:2px}
+.f-input,.f-select,.f-textarea{
+  width:100%;
+  padding:9px 12px;
+  border-radius:7px;
+  border:1.5px solid #C8C6BE;
+  background:#ffffff;
+  color:#1A1A1A;
+  font-size:13px;
+  font-family:inherit;
+  line-height:1.5;
+}
+.f-input:focus,.f-select:focus,.f-textarea:focus{outline:none;border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.15)}
+.f-textarea{resize:vertical;min-height:80px}
+.f-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f-sec{font-size:11px;font-weight:700;color:#9C9A96;letter-spacing:.08em;padding:14px 0 10px;border-bottom:1px solid #E2E0D8;margin-bottom:14px}
+.f-err{font-size:12px;color:#C0392B;margin-top:5px;display:none}
+
+/* INFO GRID */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#F7F6F2;border-radius:8px;padding:14px;border:1px solid #E2E0D8;margin-bottom:16px}
+.info-cell{display:flex;flex-direction:column;gap:4px}
+.info-lbl{font-size:11px;color:#6B6966}
+.info-val{font-size:13px;color:#1A1A1A;font-weight:500}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:22px;font-weight:700;color:#1A1A1A">税理士CRM</div>
+      <div style="font-size:12px;color:#6B6966;margin-top:4px">顧客管理システム</div>
+    </div>
+    <div id="lerr" style="display:none;background:#FDECEC;color:#9B2929;border-radius:7px;padding:9px 14px;font-size:12px;margin-bottom:14px;border:1px solid #F5C6C6">
+      IDまたはパスワードが正しくありません
+    </div>
+    <div class="f-row">
+      <label class="f-label">スタッフID</label>
+      <input class="f-input" id="lid" type="text" placeholder="スタッフIDを入力">
+    </div>
+    <div class="f-row">
+      <label class="f-label">パスワード</label>
+      <input class="f-input" id="lpw" type="password" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="hint-box">
+      デモ用アカウント<br>
+      管理者：admin / 1234<br>
+      担当者：tanaka / 5678
+    </div>
+    <button class="btn btn-p" style="width:100%;justify-content:center;padding:11px;font-size:14px" onclick="doLogin()">ログイン</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-t">税理士CRM</div>
+      <div class="logo-s">顧客管理システム</div>
+    </div>
+    <div style="padding:8px 0;flex:1">
+      <div class="nav-sec">メニュー</div>
+      <div class="nav-item active" onclick="nav('dashboard',this)">📊 ダッシュボード</div>
+      <div class="nav-item" onclick="nav('clients',this)">👥 顧客一覧</div>
+      <div class="nav-item" onclick="nav('cases',this)">📁 案件管理</div>
+      <div class="nav-item" onclick="nav('billing',this)">🧾 請求管理</div>
+      <div class="nav-item" onclick="nav('tasks',this)">✅ タスク</div>
+      <div class="nav-sec">設定</div>
+      <div class="nav-item" onclick="nav('staff',this)">⚙️ スタッフ管理</div>
+      <div class="nav-item" onclick="nav('freee',this)">🔗 freee連携</div>
+    </div>
+    <div class="sidebar-foot">
+      <div class="uinfo">
+        <div class="av" id="uav">管</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;color:#1A1A1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="uname">管理者</div>
+          <div style="font-size:10px;color:#9C9A96" id="urole">管理者</div>
+        </div>
+        <span onclick="doLogout()" style="cursor:pointer;font-size:18px;color:#9C9A96;flex-shrink:0" title="ログアウト">↩</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="page-title">ダッシュボード</h1>
+      <div id="topbar-btn"></div>
+    </div>
+    <div class="content" id="page-content"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-screen" onclick="overlayClick(event)">
+  <div class="modal-card" id="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <h2 id="modal-title">フォーム</h2>
+      <button class="btn btn-sm" onclick="closeModal()" style="background:#fff;border-color:#C8C6BE;font-size:16px;padding:4px 10px">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-ft" id="modal-ft"></div>
+  </div>
+</div>
+
+<script>
+// ===== USERS =====
+const USERS = [
+  {id:'admin', pw:'1234', name:'管理者', role:'管理者', av:'管'},
+  {id:'tanaka', pw:'5678', name:'田中 花子', role:'担当者', av:'田'}
+];
+let CU = null;
+
+// ===== DB =====
+const DB = {
+  clients: [
+    {id:1,type:'法人',name:'株式会社山田商事',kana:'ヤマダショウジ',contact:'山田 太郎',tel:'03-1234-5678',gmail:'yamada@gmail.com',address:'東京都千代田区',status:'契約中',staff:'田中 花子',memo:'毎月の記帳代行あり',roumuContract:'有',consultationDate:'2024-10-15',contractOfferDate:'2024-10-20',contactMethod:'メール',clientCode:'C-0001',contractStartDate:'2024-11-01',gdriveLink:'',mfreee:'',repName:'山田 太郎',repTitle:'代表取締役',repHomeAddress:'東京都世田谷区〇〇1-2-3',repPostalCode:'154-0000',monthlyFee:30000,withholding:'あり'},
+    {id:2,type:'個人',name:'鈴木 一郎',kana:'スズキ イチロウ',contact:'鈴木 一郎',tel:'090-1111-2222',gmail:'suzuki@gmail.com',address:'大阪府大阪市',status:'契約中',staff:'管理者',memo:'確定申告のみ',roumuContract:'無',consultationDate:'2024-12-01',contractOfferDate:'2024-12-05',contactMethod:'電話',clientCode:'C-0002',contractStartDate:'2025-01-01',gdriveLink:'',mfreee:'',repName:'鈴木 一郎',repTitle:'',repHomeAddress:'大阪府大阪市〇〇2-3-4',repPostalCode:'530-0000',monthlyFee:15000,withholding:'なし'},
+    {id:3,type:'法人',name:'合同会社テクノサービス',kana:'テクノサービス',contact:'中村 健',tel:'06-3333-4444',gmail:'nakamura@gmail.com',address:'大阪府堺市',status:'見込み',staff:'管理者',memo:'',roumuContract:'無',consultationDate:'2025-03-10',contractOfferDate:'',contactMethod:'紹介',clientCode:'C-0003',contractStartDate:'',gdriveLink:'',mfreee:'',repName:'中村 健',repTitle:'代表社員',repHomeAddress:'',repPostalCode:'',monthlyFee:0,withholding:'なし'},
+    {id:4,type:'個人',name:'佐藤 美咲',kana:'サトウ ミサキ',contact:'佐藤 美咲',tel:'080-5555-6666',gmail:'sato@gmail.com',address:'兵庫県神戸市',status:'休眠',staff:'田中 花子',memo:'昨年から連絡なし',roumuContract:'無',consultationDate:'2023-06-01',contractOfferDate:'2023-06-10',contactMethod:'メール',clientCode:'C-0004',contractStartDate:'2023-07-01',gdriveLink:'',mfreee:'',repName:'佐藤 美咲',repTitle:'',repHomeAddress:'兵庫県神戸市〇〇3-4-5',repPostalCode:'650-0000',monthlyFee:20000,withholding:'あり'},
+  ],
+  cases: [
+    {id:1,clientId:1,title:'令和6年度 法人税申告',type:'法人税',status:'進行中',startDate:'2025-04-01',dueDate:'2025-05-31',staff:'田中 花子',fee:120000},
+    {id:2,clientId:2,title:'令和6年分 確定申告',type:'確定申告',status:'完了',startDate:'2025-01-15',dueDate:'2025-03-15',staff:'管理者',fee:55000},
+    {id:3,clientId:1,title:'記帳代行（4月分）',type:'記帳代行',status:'進行中',startDate:'2025-04-01',dueDate:'2025-04-25',staff:'田中 花子',fee:30000},
+    {id:4,clientId:3,title:'会社設立支援',type:'その他',status:'見積中',startDate:'2025-05-01',dueDate:'2025-06-30',staff:'管理者',fee:200000},
+  ],
+  billing: [
+    {id:1,clientId:1,caseId:1,title:'法人税申告報酬',amount:120000,issueDate:'2025-05-31',dueDate:'2025-06-30',status:'未収',memo:''},
+    {id:2,clientId:2,caseId:2,title:'確定申告報酬',amount:55000,issueDate:'2025-03-15',dueDate:'2025-04-15',status:'入金済',memo:'3/20入金'},
+    {id:3,clientId:1,caseId:3,title:'記帳代行（4月）',amount:30000,issueDate:'2025-04-30',dueDate:'2025-05-31',status:'未収',memo:''},
+    {id:4,clientId:3,caseId:4,title:'見積書発行',amount:0,issueDate:'2025-05-10',dueDate:'-',status:'見積',memo:''},
+  ],
+  tasks: [
+    {id:1,title:'山田商事 決算書類の確認',clientId:1,dueDate:'2025-05-20',staff:'田中 花子',status:'未完了',priority:'高'},
+    {id:2,title:'鈴木一郎 還付申告書送付',clientId:2,dueDate:'2025-04-20',staff:'管理者',status:'完了',priority:'中'},
+    {id:3,title:'テクノサービス 初回面談準備',clientId:3,dueDate:'2025-05-25',staff:'管理者',status:'未完了',priority:'中'},
+    {id:4,title:'税務署提出書類チェック',clientId:1,dueDate:'2025-05-28',staff:'田中 花子',status:'未完了',priority:'高'},
+  ],
+  nid:{c:5,cs:5,b:5,t:5}
+};
+
+function save(){try{localStorage.setItem('taxcrm_v4',JSON.stringify(DB))}catch(e){}}
+function load(){try{const d=localStorage.getItem('taxcrm_v4');if(d)Object.assign(DB,JSON.parse(d))}catch(e){}}
+load();
+
+// ===== AUTH =====
+function doLogin(){
+  const id=document.getElementById('lid').value.trim();
+  const pw=document.getElementById('lpw').value;
+  const u=USERS.find(u=>u.id===id&&u.pw===pw);
+  if(!u){document.getElementById('lerr').style.display='block';return}
+  CU=u;
+  document.getElementById('lerr').style.display='none';
+  document.getElementById('uav').textContent=u.av;
+  document.getElementById('uname').textContent=u.name;
+  document.getElementById('urole').textContent=u.role;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  nav('dashboard',document.querySelector('.nav-item'));
+}
+function doLogout(){
+  CU=null;
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('lid').value='';
+  document.getElementById('lpw').value='';
+}
+
+// ===== NAVIGATION =====
+function nav(page,el){
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const titles={dashboard:'ダッシュボード',clients:'顧客一覧',cases:'案件管理',billing:'請求管理',tasks:'タスク',staff:'スタッフ管理',freee:'freee連携設定'};
+  document.getElementById('page-title').textContent=titles[page];
+  closeModal();
+  const btn=document.getElementById('topbar-btn');
+  const ct=document.getElementById('page-content');
+  if(page==='dashboard')pgDash(ct,btn);
+  else if(page==='clients')pgClients(ct,btn);
+  else if(page==='cases')pgCases(ct,btn);
+  else if(page==='billing')pgBilling(ct,btn);
+  else if(page==='tasks')pgTasks(ct,btn);
+  else if(page==='staff')pgStaff(ct,btn);
+  else if(page==='freee')pgFreee(ct,btn);
+}
+
+// ===== MODAL =====
+function openModal(title,body,footer){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=body;
+  document.getElementById('modal-ft').innerHTML=footer;
+  document.getElementById('modal-screen').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-screen').classList.remove('open')}
+function overlayClick(e){if(e.target===document.getElementById('modal-screen'))closeModal()}
+
+// ===== HELPERS =====
+function cn(id){const c=DB.clients.find(c=>c.id===id);return c?c.name:'-'}
+function badge(s){
+  const m={契約中:'bg',進行中:'bb',完了:'bgr',入金済:'bg',未収:'ba',見積:'bgr',見込み:'bb',休眠:'br',見積中:'ba',未完了:'ba',高:'br',中:'ba',低:'bgr',法人:'bb',個人:'bgr',管理者:'bg',担当者:'bgr'};
+  return`<span class="badge ${m[s]||'bgr'}">${s}</span>`
+}
+function sel(arr,id,val=''){return`<select class="f-select" id="${id}">${arr.map(v=>`<option${v===val?' selected':''}>${v}</option>`).join('')}</select>`}
+function inp(id,ph,val='',type='text'){return`<input class="f-input" id="${id}" type="${type}" placeholder="${ph}" value="${val}">`}
+function staffSel(id){return sel(USERS.map(u=>u.name),id,CU?CU.name:'')}
+function saveBtns(fn){return`<button class="btn" onclick="closeModal()">キャンセル</button><button class="btn btn-p" onclick="${fn}()">💾 保存</button>`}
+
+// ===== DASHBOARD =====
+function pgDash(c,btn){
+  btn.innerHTML='';
+  const unc=DB.billing.filter(b=>b.status==='未収').reduce((s,b)=>s+b.amount,0);
+  const pt=DB.tasks.filter(t=>t.status==='未完了').length;
+  const ac=DB.cases.filter(c=>c.status==='進行中').length;
+  c.innerHTML=`
+  <div class="stats">
+    <div class="scard"><div class="scard-l">顧客数</div><div class="scard-v">${DB.clients.length}</div><div class="scard-s">契約中 ${DB.clients.filter(c=>c.status==='契約中').length}件</div></div>
+    <div class="scard"><div class="scard-l">進行中案件</div><div class="scard-v">${ac}</div><div class="scard-s">合計 ${DB.cases.length}件</div></div>
+    <div class="scard"><div class="scard-l">未収金額</div><div class="scard-v">¥${unc.toLocaleString()}</div><div class="scard-s">未収 ${DB.billing.filter(b=>b.status==='未収').length}件</div></div>
+    <div class="scard"><div class="scard-l">未完了タスク</div><div class="scard-v">${pt}</div><div class="scard-s">高優先度 ${DB.tasks.filter(t=>t.status==='未完了'&&t.priority==='高').length}件</div></div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="sec-t">直近のタスク</div>
+      <div class="tbl-wrap">
+        ${DB.tasks.filter(t=>t.status==='未完了').slice(0,4).map(t=>`
+        <div class="task-item">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500">${t.title}</div>
+            <div style="font-size:11px;color:#6B6966;margin-top:2px">${cn(t.clientId)} · 期限 ${t.dueDate}</div>
+          </div>
+          ${badge(t.priority)}
+        </div>`).join('')||'<div style="padding:14px;font-size:12px;color:#9C9A96">タスクなし</div>'}
+      </div>
+    </div>
+    <div>
+      <div class="sec-t">未収請求</div>
+      <div class="tbl-wrap">
+        ${DB.billing.filter(b=>b.status==='未収').slice(0,4).map(b=>`
+        <div style="padding:10px 14px;border-bottom:1px solid #E2E0D8;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:13px;font-weight:500">${b.title}</div>
+            <div style="font-size:11px;color:#6B6966;margin-top:2px">${cn(b.clientId)} · 期限 ${b.dueDate}</div>
+          </div>
+          <div style="font-size:14px;font-weight:700">¥${b.amount.toLocaleString()}</div>
+        </div>`).join('')||'<div style="padding:14px;font-size:12px;color:#9C9A96">未収なし</div>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ===== CLIENTS =====
+function pgClients(c,btn){
+  btn.innerHTML=`<button class="btn btn-p" onclick="openAddClient()">＋ 顧客追加</button>`;
+  c.innerHTML=`<div style="overflow-x:auto"><div class="tbl-wrap" style="min-width:700px"><table style="table-layout:auto"><thead><tr>
+    <th style="min-width:80px">顧客CD</th>
+    <th style="min-width:160px">顧客名</th>
+    <th style="min-width:65px">種別</th>
+    <th style="min-width:110px">代表者名</th>
+    <th style="min-width:75px">労務顧問</th>
+    <th style="min-width:120px">電話番号</th>
+    <th style="min-width:70px">状態</th>
+    <th style="min-width:110px">操作</th>
+  </tr></thead><tbody id="ctb"></tbody></table></div></div>`;
+  renderCT();
+}
+function renderCT(){
+  const tb=document.getElementById('ctb');if(!tb)return;
+  tb.innerHTML=DB.clients.map(cl=>`<tr>
+    <td style="font-size:11px;font-family:monospace;color:#6B6966">${cl.clientCode||'-'}</td>
+    <td><div style="font-weight:600">${cl.name}</div><div style="font-size:11px;color:#6B6966;margin-top:1px">${cl.kana}</div></td>
+    <td>${badge(cl.type)}</td>
+    <td style="font-size:13px">${cl.repName||'-'}${cl.repTitle?`<div style="font-size:11px;color:#6B6966;margin-top:1px">${cl.repTitle}</div>`:''}</td>
+    <td style="text-align:center">${cl.roumuContract==='有'?'<span class="badge bg">有</span>':'<span class="badge bgr">無</span>'}</td>
+    <td style="font-size:12px">${cl.tel||'-'}</td>
+    <td>${badge(cl.status)}</td>
+    <td style="display:flex;gap:4px">
+      <button class="btn btn-sm" onclick="openClientDetail(${cl.id})">詳細</button>
+      <button class="btn btn-sm" onclick="openEditClient(${cl.id})" style="color:#1D9E75;border-color:#1D9E75">編集</button>
+    </td>
+  </tr>`).join('');
+}
+
+// ===== CLIENT FORM BODY (shared by add & edit) =====
+function clientFormBody(cl){
+  const v=(f,fb='')=>cl?cl[f]||fb:fb;
+  const sv=(arr,id,cur)=>`<select class="f-select" id="${id}">${arr.map(o=>`<option${o===cur?' selected':''}>${o}</option>`).join('')}</select>`;
+  const iv=(id,ph,val='',type='text')=>`<input class="f-input" id="${id}" type="${type}" placeholder="${ph}" value="${val}">`;
+  const staffOpts=USERS.map(u=>`<option${u.name===v('staff',CU?CU.name:'')?' selected':''}>${u.name}</option>`).join('');
+  return `
+  <div class="f-sec">基本情報</div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">顧客コード</label>${iv('fcode','例：C-0005',v('clientCode'))}</div>
+    <div class="f-row"><label class="f-label">ステータス</label>${sv(['契約中','見込み','休眠'],'fst',v('status','契約中'))}</div>
+  </div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">種別</label>${sv(['法人','個人'],'ft',v('type','法人'))}</div>
+    <div class="f-row"><label class="f-label">労務顧問契約</label>${sv(['無','有'],'froumu',v('roumuContract','無'))}</div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">月額税務顧問料（円・税抜）</label>${iv('fmonthly','例：30000',v('monthlyFee'),'number')}</div>
+    <div class="f-row"><label class="f-label">源泉徴収</label>${sv(['なし','あり'],'fwithholding',v('withholding','なし'))}</div>
+  </div>
+  </div>
+  <div class="f-row"><label class="f-label">顧客名<span class="req">*</span></label>${iv('fn','例：株式会社〇〇',v('name'))}<div class="f-err" id="fn-err">顧客名を入力してください</div></div>
+  <div class="f-row"><label class="f-label">フリガナ</label>${iv('fk','カタカナで入力',v('kana'))}</div>
+  <div class="f-sec">日程・経緯</div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">商談日</label>${iv('fconsult','',v('consultationDate'),'date')}</div>
+    <div class="f-row"><label class="f-label">契約申出日</label>${iv('foffer','',v('contractOfferDate'),'date')}</div>
+  </div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">契約開始日</label>${iv('fcontractstart','',v('contractStartDate'),'date')}</div>
+    <div class="f-row"><label class="f-label">連絡手段</label>${sv(['メール','電話','LINE','紹介','その他'],'fcontactmethod',v('contactMethod','メール'))}</div>
+  </div>
+  <div class="f-sec">連絡先</div>
+  <div class="f-row"><label class="f-label">担当者名</label>${iv('fc','先方担当者名',v('contact'))}</div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">電話番号</label>${iv('ftel','03-0000-0000',v('tel'))}</div>
+    <div class="f-row"><label class="f-label">Gmailアドレス</label>${iv('fgmail','example@gmail.com',v('gmail'))}</div>
+  </div>
+  <div class="f-row"><label class="f-label">住所（事業所）</label>${iv('fad','都道府県から入力',v('address'))}</div>
+  <div class="f-sec">代表者情報</div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">代表者名</label>${iv('frepname','例：山田 太郎',v('repName'))}</div>
+    <div class="f-row"><label class="f-label">肩書</label>${iv('freptitle','例：代表取締役',v('repTitle'))}</div>
+  </div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">自宅 郵便番号</label>${iv('freppostal','例：150-0000',v('repPostalCode'))}</div>
+    <div class="f-row"><label class="f-label">自宅 住所</label>${iv('frepaddr','都道府県から入力',v('repHomeAddress'))}</div>
+  </div>
+  <div class="f-sec">連携・担当</div>
+  <div class="f-row"><label class="f-label">Gドライブリンク</label>${iv('fgdrive','https://drive.google.com/...',v('gdriveLink'))}</div>
+  <div class="f-row"><label class="f-label">MF/freee</label>${iv('fmfreee','MF/freeeのID・リンクなど',v('mfreee'))}</div>
+  <div class="f-row"><label class="f-label">メモ</label><textarea class="f-textarea" id="fmemo" placeholder="特記事項など">${v('memo')}</textarea></div>`;
+}
+
+function collectClientFields(){
+  return {
+    clientCode:document.getElementById('fcode').value,
+    type:document.getElementById('ft').value,
+    name:document.getElementById('fn').value.trim(),
+    kana:document.getElementById('fk').value,
+    contact:document.getElementById('fc').value,
+    tel:document.getElementById('ftel').value,
+    gmail:document.getElementById('fgmail').value,
+    address:document.getElementById('fad').value,
+    repName:document.getElementById('frepname').value,
+    repTitle:document.getElementById('freptitle').value,
+    repPostalCode:document.getElementById('freppostal').value,
+    repHomeAddress:document.getElementById('frepaddr').value,
+    status:document.getElementById('fst').value,
+    memo:document.getElementById('fmemo').value,
+    roumuContract:document.getElementById('froumu').value,
+    monthlyFee:parseInt(document.getElementById('fmonthly').value)||0,
+    withholding:document.getElementById('fwithholding').value,
+    consultationDate:document.getElementById('fconsult').value,
+    contractOfferDate:document.getElementById('foffer').value,
+    contactMethod:document.getElementById('fcontactmethod').value,
+    contractStartDate:document.getElementById('fcontractstart').value,
+    gdriveLink:document.getElementById('fgdrive').value,
+    mfreee:document.getElementById('fmfreee').value,
+  };
+}
+
+function openAddClient(){
+  openModal('顧客を追加', clientFormBody(null),
+    `<button class="btn" onclick="closeModal()">キャンセル</button><button class="btn btn-p" onclick="saveClient()">💾 保存</button>`);
+}
+function saveClient(){
+  const f=collectClientFields();
+  if(!f.name){document.getElementById('fn-err').style.display='block';document.getElementById('fn').focus();return}
+  DB.clients.push({id:DB.nid.c++, ...f});
+  save();closeModal();renderCT();
+}
+
+function openEditClient(id){
+  const cl=DB.clients.find(c=>c.id===id);if(!cl)return;
+  openModal('顧客を編集：'+cl.name, clientFormBody(cl),
+    `<button class="btn" onclick="closeModal()">キャンセル</button><button class="btn btn-p" onclick="updateClient(${id})">💾 更新</button>`);
+}
+function updateClient(id){
+  const f=collectClientFields();
+  if(!f.name){document.getElementById('fn-err').style.display='block';document.getElementById('fn').focus();return}
+  const idx=DB.clients.findIndex(c=>c.id===id);
+  if(idx===-1)return;
+  DB.clients[idx]={...DB.clients[idx], ...f};
+  save();closeModal();renderCT();
+}
+
+function openClientDetail(id){
+  const cl=DB.clients.find(c=>c.id===id);if(!cl)return;
+  const cases=DB.cases.filter(c=>c.clientId===id);
+  const bills=DB.billing.filter(b=>b.clientId===id);
+  const gdrive=cl.gdriveLink?`<a href="${cl.gdriveLink}" target="_blank" style="color:#1D9E75;font-size:12px;word-break:break-all">🔗 開く</a>`:'<span style="color:#9C9A96">-</span>';
+  openModal(cl.name,`
+  <div class="info-grid">
+    <div class="info-cell"><span class="info-lbl">顧客コード</span><span class="info-val" style="font-family:monospace">${cl.clientCode||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">状態</span>${badge(cl.status)}</div>
+    <div class="info-cell"><span class="info-lbl">種別</span>${badge(cl.type)}</div>
+    <div class="info-cell"><span class="info-lbl">労務顧問契約</span>${cl.roumuContract==='有'?'<span class="badge bg">有</span>':'<span class="badge bgr">無</span>'}</div>
+    <div class="info-cell"><span class="info-lbl">月額顧問料（税抜）</span><span class="info-val">${cl.monthlyFee?'¥'+Number(cl.monthlyFee).toLocaleString()+' → 税込 ¥'+Math.floor(Number(cl.monthlyFee)*1.1).toLocaleString():'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">源泉徴収</span><span class="info-val">${cl.withholding||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">先方担当</span><span class="info-val">${cl.contact||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">電話</span><span class="info-val">${cl.tel||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">Gmail</span><span class="info-val" style="font-size:12px">${cl.gmail||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">商談日</span><span class="info-val">${cl.consultationDate||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">契約申出日</span><span class="info-val">${cl.contractOfferDate||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">契約開始日</span><span class="info-val">${cl.contractStartDate||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">連絡手段</span><span class="info-val">${cl.contactMethod||'-'}</span></div>
+    <div class="info-cell"><span class="info-lbl">Gドライブ</span>${gdrive}</div>
+    <div class="info-cell"><span class="info-lbl">MF/freee</span><span class="info-val" style="font-size:12px">${cl.mfreee||'-'}</span></div>
+    ${cl.address?`<div class="info-cell" style="grid-column:span 2"><span class="info-lbl">住所（事業所）</span><span class="info-val">${cl.address}</span></div>`:''}
+    ${(cl.repName||cl.repTitle)?`<div class="info-cell"><span class="info-lbl">代表者名</span><span class="info-val">${cl.repName||'-'}</span></div><div class="info-cell"><span class="info-lbl">肩書</span><span class="info-val">${cl.repTitle||'-'}</span></div>`:''}
+    ${(cl.repPostalCode||cl.repHomeAddress)?`<div class="info-cell"><span class="info-lbl">自宅 郵便番号</span><span class="info-val">${cl.repPostalCode||'-'}</span></div><div class="info-cell"><span class="info-lbl">自宅 住所</span><span class="info-val">${cl.repHomeAddress||'-'}</span></div>`:''}
+    ${cl.memo?`<div class="info-cell" style="grid-column:span 2"><span class="info-lbl">メモ</span><span class="info-val" style="font-weight:400;color:#6B6966">${cl.memo}</span></div>`:''}
+  </div>
+  <div class="sec-t">関連案件（${cases.length}件）</div>
+  <div class="tbl-wrap" style="margin-bottom:16px">
+    ${cases.length?cases.map(cs=>`<div style="padding:10px 14px;border-bottom:1px solid #E2E0D8;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">${cs.title}</span>${badge(cs.status)}</div>`).join(''):'<div style="padding:12px 14px;font-size:12px;color:#9C9A96">案件なし</div>'}
+  </div>
+  <div class="sec-t">請求履歴（${bills.length}件）</div>
+  <div class="tbl-wrap">
+    ${bills.length?bills.map(b=>`<div style="padding:10px 14px;border-bottom:1px solid #E2E0D8;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">${b.title}</span><span style="display:flex;align-items:center;gap:8px">¥${b.amount.toLocaleString()} ${badge(b.status)}</span></div>`).join(''):'<div style="padding:12px 14px;font-size:12px;color:#9C9A96">請求なし</div>'}
+  </div>`,
+  `<button class="btn" onclick="openEditClient(${id})" style="margin-right:auto;color:#1D9E75;border-color:#1D9E75">✏️ 編集</button><button class="btn" onclick="closeModal()">閉じる</button>`);
+}
+
+// ===== CASES =====
+function pgCases(c,btn){
+  btn.innerHTML=`<button class="btn btn-p" onclick="openAddCase()">＋ 案件追加</button>`;
+  c.innerHTML=`<div class="tbl-wrap"><table><thead><tr>
+    <th style="width:28%">案件名</th><th style="width:18%">顧客</th><th style="width:11%">種別</th>
+    <th style="width:10%">担当</th><th style="width:11%">期限</th><th style="width:12%">報酬</th><th style="width:10%">状態</th>
+  </tr></thead><tbody>
+    ${DB.cases.map(cs=>`<tr>
+      <td style="font-weight:500">${cs.title}</td>
+      <td style="font-size:12px">${cn(cs.clientId)}</td>
+      <td>${badge(cs.type)}</td>
+      <td style="font-size:12px">${cs.staff}</td>
+      <td style="font-size:12px">${cs.dueDate}</td>
+      <td style="font-size:12px">¥${cs.fee.toLocaleString()}</td>
+      <td>${badge(cs.status)}</td>
+    </tr>`).join('')}
+  </tbody></table></div>`;
+}
+function openAddCase(){
+  openModal('案件を追加',`
+  <div class="f-row"><label class="f-label">案件名<span class="req">*</span></label>${inp('ct','例：令和6年度 法人税申告')}<div class="f-err" id="ct-err">案件名を入力してください</div></div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">顧客<span class="req">*</span></label><select class="f-select" id="ccl">${DB.clients.map(cl=>`<option value="${cl.id}">${cl.name}</option>`).join('')}</select></div>
+    <div class="f-row"><label class="f-label">種別</label>${sel(['法人税','確定申告','記帳代行','相続税','その他'],'ctype','法人税')}</div>
+  </div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">担当スタッフ</label>${staffSel('cstaff')}</div>
+    <div class="f-row"><label class="f-label">ステータス</label>${sel(['見積中','進行中','完了'],'cst','進行中')}</div>
+  </div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">開始日</label>${inp('csd','2025-04-01')}</div>
+    <div class="f-row"><label class="f-label">期限</label>${inp('cdd','2025-06-30')}</div>
+  </div>
+  <div class="f-row"><label class="f-label">報酬金額（円）</label>${inp('cfee','0','','number')}</div>`,
+  saveBtns('saveCase'));
+}
+function saveCase(){
+  const title=document.getElementById('ct').value.trim();
+  if(!title){document.getElementById('ct-err').style.display='block';document.getElementById('ct').focus();return}
+  DB.cases.push({
+    id:DB.nid.cs++,
+    clientId:parseInt(document.getElementById('ccl').value),
+    title,
+    type:document.getElementById('ctype').value,
+    status:document.getElementById('cst').value,
+    startDate:document.getElementById('csd').value,
+    dueDate:document.getElementById('cdd').value,
+    staff:document.getElementById('cstaff').value,
+    fee:parseInt(document.getElementById('cfee').value)||0
+  });
+  save();closeModal();pgCases(document.getElementById('page-content'),document.getElementById('topbar-btn'));
+}
+
+// ===== BILLING =====
+function pgBilling(c,btn){
+  btn.innerHTML=`<button class="btn btn-p" onclick="openAddBilling()">＋ 請求追加</button>`;
+  const tot=DB.billing.reduce((s,b)=>s+b.amount,0);
+  const paid=DB.billing.filter(b=>b.status==='入金済').reduce((s,b)=>s+b.amount,0);
+  const unpaid=DB.billing.filter(b=>b.status==='未収').reduce((s,b)=>s+b.amount,0);
+  c.innerHTML=`
+  <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+    <div class="scard"><div class="scard-l">請求合計</div><div class="scard-v">¥${tot.toLocaleString()}</div></div>
+    <div class="scard"><div class="scard-l">入金済</div><div class="scard-v" style="color:#1D9E75">¥${paid.toLocaleString()}</div></div>
+    <div class="scard"><div class="scard-l">未収</div><div class="scard-v" style="color:#954E0E">¥${unpaid.toLocaleString()}</div></div>
+  </div>
+  <div class="tbl-wrap"><table><thead><tr>
+    <th style="width:24%">件名</th><th style="width:15%">顧客</th><th style="width:11%">金額</th>
+    <th style="width:8%">源泉</th><th style="width:11%">請求日</th><th style="width:11%">支払期限</th><th style="width:9%">状態</th><th style="width:11%">操作</th>
+  </tr></thead><tbody id="btb"></tbody></table></div>`;
+  renderBT();
+}
+function renderBT(){
+  const tb=document.getElementById('btb');if(!tb)return;
+  tb.innerHTML=DB.billing.map(b=>`<tr>
+    <td style="font-weight:500">${b.title}</td>
+    <td style="font-size:12px">${cn(b.clientId)}</td>
+    <td style="font-weight:600">¥${b.amount.toLocaleString()}</td>
+    <td style="font-size:12px;text-align:center">${b.withholding==='あり'?'<span class="badge ba">あり</span>':'<span class="badge bgr">なし</span>'}</td>
+    <td style="font-size:12px">${b.issueDate}</td>
+    <td style="font-size:12px">${b.dueDate}</td>
+    <td>${badge(b.status)}</td>
+    <td style="display:flex;gap:4px;flex-wrap:wrap">
+      ${b.status==='未収'?`<button class="btn btn-sm" onclick="markPaid(${b.id})" style="color:#1D9E75;border-color:#1D9E75">✓ 入金</button>`:''}
+      <button class="btn btn-sm" onclick="openEditBilling(${b.id})" style="color:#185FA5;border-color:#185FA5">編集</button>
+      <button class="btn btn-sm" onclick="deleteBilling(${b.id})" style="color:#C0392B;border-color:#C0392B">削除</button>
+      <button class="btn btn-sm" onclick="sendToFreee(${b.id})" style="color:#3d5afe;border-color:#3d5afe" title="freeeに請求書を送信">📤 freee送信</button>
+    </td>
+  </tr>`).join('');
+}
+function markPaid(id){const b=DB.billing.find(b=>b.id===id);if(b){b.status='入金済';save();renderBT();}}
+
+function deleteBilling(id){
+  if(!confirm('この請求を削除しますか？')) return;
+  DB.billing=DB.billing.filter(b=>b.id!==id);
+  save();
+  pgBilling(document.getElementById('page-content'),document.getElementById('topbar-btn'));
+}
+
+function openEditBilling(id){
+  const b=DB.billing.find(x=>x.id===id);
+  if(!b)return;
+  openModal('請求を編集',`
+  <div class="f-row"><label class="f-label">件名<span class="req">*</span></label><input class="f-input" id="bt" value="${b.title}"><div class="f-err" id="bt-err">件名を入力してください</div></div>
+  <div class="f-row"><label class="f-label">顧客</label>
+    <select class="f-select" id="bcl">
+      ${DB.clients.map(cl=>`<option value="${cl.id}"${cl.id===b.clientId?' selected':''}>${cl.name}</option>`).join('')}
+    </select>
+  </div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">請求金額（円・税込）</label><input class="f-input" id="bamt" type="number" value="${b.amount}"></div>
+    <div class="f-row"><label class="f-label">源泉徴収</label><select class="f-select" id="bwithholding"><option${b.withholding!=='あり'?' selected':''}>なし</option><option${b.withholding==='あり'?' selected':''}>あり</option></select></div>
+  </div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">請求日</label><input class="f-input" id="biss" type="date" value="${b.issueDate}"></div>
+    <div class="f-row"><label class="f-label">支払期限</label><input class="f-input" id="bdue" type="date" value="${b.dueDate&&b.dueDate!=='-'?b.dueDate:''}"></div>
+  </div>
+  <div class="f-row"><label class="f-label">ステータス</label><select class="f-select" id="bst"><option${b.status==='未収'?' selected':''}>未収</option><option${b.status==='入金済'?' selected':''}>入金済</option><option${b.status==='見積'?' selected':''}>見積</option></select></div>
+  <div class="f-row"><label class="f-label">メモ</label><textarea class="f-textarea" id="bmemo">${b.memo||''}</textarea></div>`,
+  `<button class="btn" onclick="closeModal()">キャンセル</button><button class="btn btn-p" onclick="updateBilling(${id})">💾 更新</button>`);
+}
+
+function updateBilling(id){
+  const title=document.getElementById('bt').value.trim();
+  if(!title){document.getElementById('bt-err').style.display='block';document.getElementById('bt').focus();return}
+  const idx=DB.billing.findIndex(b=>b.id===id);
+  if(idx===-1)return;
+  DB.billing[idx]={
+    ...DB.billing[idx],
+    title,
+    clientId:parseInt(document.getElementById('bcl').value),
+    amount:parseInt(document.getElementById('bamt').value)||0,
+    withholding:document.getElementById('bwithholding').value,
+    issueDate:document.getElementById('biss').value,
+    dueDate:document.getElementById('bdue').value||'-',
+    status:document.getElementById('bst').value,
+    memo:document.getElementById('bmemo').value,
+  };
+  save();closeModal();
+  pgBilling(document.getElementById('page-content'),document.getElementById('topbar-btn'));
+}
+function openAddBilling(){
+  // 今日の日付を取得してデフォルト値に使用
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const lastDay = new Date(yyyy, today.getMonth()+1, 0).getDate();
+  const issueDefault = `${yyyy}-${mm}-01`;
+  const dueDefault = `${yyyy}-${mm}-${lastDay}`;
+
+  openModal('請求を追加',`
+  <div class="f-row"><label class="f-label">件名<span class="req">*</span></label>${inp('bt','例：税務顧問料（〇月分）')}<div class="f-err" id="bt-err">件名を入力してください</div></div>
+  <div class="f-row"><label class="f-label">顧客</label>
+    <select class="f-select" id="bcl" onchange="billingAutoFill()">
+      ${DB.clients.map(cl=>`<option value="${cl.id}">${cl.name}</option>`).join('')}
+    </select>
+  </div>
+  <div style="background:#EAF5F1;border:1px solid #B2DFD0;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#0F6E56">
+    💡 顧客を選択すると月額顧問料（税抜）に消費税10%を加算した税込金額と源泉徴収が自動で入力されます
+  </div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">請求金額（円・税込）</label>${inp('bamt','0','','number')}</div>
+    <div class="f-row"><label class="f-label">源泉徴収</label><select class="f-select" id="bwithholding"><option>なし</option><option>あり</option></select></div>
+  </div>
+  <div id="bwithholding-info" style="display:none;background:#FEF3E2;border:1px solid #F5CFA0;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#954E0E"></div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">請求日</label><input class="f-input" id="biss" type="date" value="${issueDefault}"></div>
+    <div class="f-row"><label class="f-label">支払期限</label><input class="f-input" id="bdue" type="date" value="${dueDefault}"></div>
+  </div>
+  <div class="f-row"><label class="f-label">ステータス</label>${sel(['未収','入金済','見積'],'bst','未収')}</div>
+  <div class="f-row"><label class="f-label">メモ</label><textarea class="f-textarea" id="bmemo" placeholder="備考など"></textarea></div>`,
+  saveBtns('saveBilling'));
+  // フォーム表示後に初期顧客の値を自動入力
+  setTimeout(billingAutoFill, 50);
+}
+
+function billingAutoFill(){
+  const clientId = parseInt(document.getElementById('bcl')?.value);
+  if(!clientId) return;
+  const cl = DB.clients.find(c => c.id === clientId);
+  if(!cl) return;
+
+  // 月額顧問料（税抜）→ 税込（×1.1、1円未満切り捨て）をセット
+  const amtEl = document.getElementById('bamt');
+  if(amtEl && cl.monthlyFee) amtEl.value = Math.floor(Number(cl.monthlyFee) * 1.1);
+
+  // 源泉徴収をセット
+  const wEl = document.getElementById('bwithholding');
+  if(wEl && cl.withholding) wEl.value = cl.withholding;
+
+  // 源泉徴収ありの場合、控除額を計算して表示
+  updateWithholdingInfo();
+
+  // 件名が空なら自動セット
+  const btEl = document.getElementById('bt');
+  if(btEl && !btEl.value) {
+    const today = new Date();
+    const m = today.getMonth()+1;
+    btEl.value = `税務顧問料（${m}月分）`;
+  }
+}
+
+function updateWithholdingInfo(){
+  const wEl = document.getElementById('bwithholding');
+  const amtEl = document.getElementById('bamt');
+  const infoEl = document.getElementById('bwithholding-info');
+  if(!wEl || !amtEl || !infoEl) return;
+  if(wEl.value === 'あり'){
+    const feeIncTax = parseInt(amtEl.value)||0;
+    // 源泉徴収は税抜金額に対して10.21%
+    const feeExTax = Math.round(feeIncTax / 1.1);
+    const tax = Math.floor(feeExTax * 0.1021);
+    const net = feeIncTax - tax;
+    infoEl.style.display = 'block';
+    infoEl.innerHTML = `源泉徴収あり：請求額（税込）¥${feeIncTax.toLocaleString()} － 源泉税 ¥${tax.toLocaleString()}（税抜 ¥${feeExTax.toLocaleString()} × 10.21%）＝ <strong>入金予定 ¥${net.toLocaleString()}</strong>`;
+  } else {
+    infoEl.style.display = 'none';
+  }
+}
+
+function saveBilling(){
+  const title=document.getElementById('bt').value.trim();
+  if(!title){document.getElementById('bt-err').style.display='block';document.getElementById('bt').focus();return}
+  DB.billing.push({
+    id:DB.nid.b++,
+    clientId:parseInt(document.getElementById('bcl').value),
+    caseId:null,
+    title,
+    amount:parseInt(document.getElementById('bamt').value)||0,
+    withholding:document.getElementById('bwithholding').value,
+    issueDate:document.getElementById('biss').value,
+    dueDate:document.getElementById('bdue').value,
+    status:document.getElementById('bst').value,
+    memo:document.getElementById('bmemo').value
+  });
+  save();closeModal();pgBilling(document.getElementById('page-content'),document.getElementById('topbar-btn'));
+}
+
+// ===== TASKS =====
+function pgTasks(c,btn){
+  btn.innerHTML=`<button class="btn btn-p" onclick="openAddTask()">＋ タスク追加</button>`;
+  c.innerHTML=`
+  <div class="tab-bar">
+    <div class="tab active" onclick="filterT('all',this)">すべて</div>
+    <div class="tab" onclick="filterT('未完了',this)">未完了</div>
+    <div class="tab" onclick="filterT('完了',this)">完了</div>
+  </div>
+  <div class="tbl-wrap" id="tlist"></div>`;
+  renderTL('all');
+}
+function filterT(f,el){document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');renderTL(f)}
+function renderTL(f){
+  const tl=document.getElementById('tlist');if(!tl)return;
+  const tasks=f==='all'?DB.tasks:DB.tasks.filter(t=>t.status===f);
+  tl.innerHTML=tasks.length?tasks.map(t=>`
+  <div class="task-item">
+    <div class="chk ${t.status==='完了'?'done':''}" onclick="toggleT(${t.id})">
+      ${t.status==='完了'?'<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
+    </div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:500;${t.status==='完了'?'text-decoration:line-through;color:#9C9A96':''}">${t.title}</div>
+      <div style="font-size:11px;color:#6B6966;margin-top:2px">${cn(t.clientId)} · ${t.staff} · 期限 ${t.dueDate}</div>
+    </div>
+    ${badge(t.priority)}
+  </div>`).join(''):'<div style="padding:20px;font-size:13px;color:#9C9A96;text-align:center">タスクなし</div>';
+}
+function toggleT(id){
+  const t=DB.tasks.find(t=>t.id===id);
+  if(t){t.status=t.status==='完了'?'未完了':'完了';save();const a=document.querySelector('.tab.active');renderTL(a&&a.textContent!=='すべて'?a.textContent:'all')}
+}
+function openAddTask(){
+  openModal('タスクを追加',`
+  <div class="f-row"><label class="f-label">タスク名<span class="req">*</span></label>${inp('tt','例：書類の確認・提出')}<div class="f-err" id="tt-err">タスク名を入力してください</div></div>
+  <div class="f-row"><label class="f-label">顧客</label><select class="f-select" id="tcl">${DB.clients.map(cl=>`<option value="${cl.id}">${cl.name}</option>`).join('')}</select></div>
+  <div class="f-grid">
+    <div class="f-row"><label class="f-label">担当スタッフ</label>${staffSel('tstaff')}</div>
+    <div class="f-row"><label class="f-label">優先度</label>${sel(['高','中','低'],'tpr','中')}</div>
+  </div>
+  <div class="f-row"><label class="f-label">期限</label>${inp('tdue','2025-06-30')}</div>`,
+  saveBtns('saveTask'));
+}
+function saveTask(){
+  const title=document.getElementById('tt').value.trim();
+  if(!title){document.getElementById('tt-err').style.display='block';document.getElementById('tt').focus();return}
+  DB.tasks.push({
+    id:DB.nid.t++,
+    title,
+    clientId:parseInt(document.getElementById('tcl').value),
+    dueDate:document.getElementById('tdue').value,
+    staff:document.getElementById('tstaff').value,
+    status:'未完了',
+    priority:document.getElementById('tpr').value
+  });
+  save();closeModal();pgTasks(document.getElementById('page-content'),document.getElementById('topbar-btn'));
+}
+
+// ===== STAFF =====
+function pgStaff(c,btn){
+  btn.innerHTML='';
+  c.innerHTML=`
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:25%">スタッフID</th><th style="width:40%">氏名</th><th style="width:35%">権限</th></tr></thead>
+      <tbody>${USERS.map(u=>`<tr><td style="font-family:monospace;font-size:13px">${u.id}</td><td style="font-weight:600">${u.name}</td><td>${badge(u.role)}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>
+  <div style="margin-top:12px;font-size:12px;color:#9C9A96">スタッフの追加・変更はシステム管理者にお問い合わせください</div>`;
+}
+
+
+// ===== FREEE SETTINGS (GAS方式) =====
+function getFreeeSettings(){
+  try{return JSON.parse(localStorage.getItem('freee_settings_gas')||'{}')}catch(e){return{}}
+}
+function saveFreeeSettings(s){localStorage.setItem('freee_settings_gas',JSON.stringify(s))}
+
+// GASエンドポイントへのリクエスト共通関数
+async function gasRequest(action, params={}, method='GET', body=null){
+  const s = getFreeeSettings();
+  if(!s.gasUrl) throw new Error('GASのURLが設定されていません');
+  const url = new URL(s.gasUrl);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+  const opt = { method };
+  if(body) opt.body = JSON.stringify(body);
+  const res = await fetch(url.toString(), opt);
+  return res.json();
+}
+
+function pgFreee(c,btn){
+  btn.innerHTML='';
+  const s=getFreeeSettings();
+  c.innerHTML=`
+  <div style="max-width:640px">
+
+    <!-- ステップ表示 -->
+    <div style="display:flex;gap:0;margin-bottom:24px">
+      ${['①freeeアプリ登録','②GASセットアップ','③CRM設定','④freee認証'].map((label,i)=>`
+      <div style="flex:1;text-align:center;font-size:11px;font-weight:600;padding:8px 4px;
+        background:${i===0?'#1D9E75':i<3?'#E2E0D8':'#E2E0D8'};
+        color:${i===0?'#fff':'#6B6966'};
+        border-radius:${i===0?'8px 0 0 8px':i===3?'0 8px 8px 0':'0'}">
+        ${label}
+      </div>`).join('<div style="width:1px;background:#fff"></div>')}
+    </div>
+
+    <!-- STEP 1: freeeアプリ登録 -->
+    <div class="tbl-wrap" style="padding:20px 24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">STEP 1　freeeにOAuthアプリを登録する</div>
+      <ol style="font-size:13px;color:#1A1A1A;line-height:2;padding-left:20px">
+        <li><a href="https://app.secure.freee.co.jp/oauth/applications" target="_blank" style="color:#1D9E75;font-weight:600">freeeアプリストア（開発者向け）</a> を開く</li>
+        <li>「新規アプリ作成」をクリック</li>
+        <li>アプリ名に <code style="background:#F0EFEA;padding:2px 6px;border-radius:4px">税理士CRM</code> と入力</li>
+        <li>コールバックURLに以下を入力：<br>
+          <code style="background:#F0EFEA;padding:4px 8px;border-radius:4px;font-size:12px;display:block;margin-top:4px">urn:ietf:wg:oauth:2.0:oob</code>
+          ※GASデプロイ後に正式なURLに更新します
+        </li>
+        <li>「作成」後に表示される <strong>Client ID</strong> と <strong>Client Secret</strong> をメモ</li>
+      </ol>
+      <div style="background:#FEF3E2;border:1px solid #F5CFA0;border-radius:8px;padding:10px 14px;font-size:12px;color:#954E0E;margin-top:8px">
+        ⚠️ Client Secret は一度しか表示されません。必ずコピーして安全な場所に保存してください。
+      </div>
+    </div>
+
+    <!-- STEP 2: GASセットアップ -->
+    <div class="tbl-wrap" style="padding:20px 24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">STEP 2　Google Apps Scriptをセットアップする</div>
+      <ol style="font-size:13px;color:#1A1A1A;line-height:2;padding-left:20px">
+        <li><a href="https://script.google.com/home/start" target="_blank" style="color:#1D9E75;font-weight:600">script.google.com</a> を開き「新しいプロジェクト」を作成</li>
+        <li>プロジェクト名を <code style="background:#F0EFEA;padding:2px 6px;border-radius:4px">freee-crm-bridge</code> に変更</li>
+        <li>左メニューの「ライブラリ（＋）」をクリックし、以下のスクリプトIDを追加：<br>
+          <code style="background:#F0EFEA;padding:4px 8px;border-radius:4px;font-size:11px;display:block;margin-top:4px;word-break:break-all">1B7FSrk5Zi6L1rSxxTDgDEUsPzlukDsi4KGuTMorsTQHhGBzBkMun4iDF</code>
+          識別子は <code style="background:#F0EFEA;padding:2px 6px;border-radius:4px">OAuth2</code> に設定
+        </li>
+        <li>ダウンロードした <strong>freee_gas.js</strong> の内容をすべて貼り付け（既存コードは削除）</li>
+        <li>コード冒頭の <code style="background:#F0EFEA;padding:2px 6px;border-radius:4px">CLIENT_ID</code> と <code style="background:#F0EFEA;padding:2px 6px;border-radius:4px">CLIENT_SECRET</code> にSTEP1の値を入力して保存</li>
+        <li>「デプロイ」→「新しいデプロイ」→ 種類：<strong>ウェブアプリ</strong><br>
+          ・次のユーザーとして実行：<strong>自分</strong><br>
+          ・アクセスできるユーザー：<strong>全員</strong><br>
+          →「デプロイ」をクリック
+        </li>
+        <li>表示された <strong>ウェブアプリURL</strong>（https://script.google.com/macros/s/...）をコピー</li>
+      </ol>
+    </div>
+
+    <!-- STEP 3: CRM設定 -->
+    <div class="tbl-wrap" style="padding:20px 24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">STEP 3　CRMにGAS URLと事業所IDを設定する</div>
+      <div class="f-row">
+        <label class="f-label">GAS ウェブアプリURL<span class="req">*</span></label>
+        <input class="f-input" id="freee-gas-url" type="text"
+          placeholder="https://script.google.com/macros/s/xxxxx/exec"
+          value="${s.gasUrl||''}">
+      </div>
+      <div class="f-row">
+        <label class="f-label">freee 事業所ID<span class="req">*</span></label>
+        <input class="f-input" id="freee-company-id" type="text"
+          placeholder="例：1234567"
+          value="${s.companyId||''}">
+        <div style="font-size:11px;color:#9C9A96;margin-top:4px">freee会計 → 設定 → 事業所の設定 で確認できます</div>
+      </div>
+      <div class="f-row">
+        <label class="f-label">税区分（デフォルト）</label>
+        <select class="f-select" id="freee-taxcode">
+          <option value="101" ${(s.taxCode||'101')==='101'?'selected':''}>課税売上10%（標準）</option>
+          <option value="102" ${s.taxCode==='102'?'selected':''}>課税売上8%（軽減）</option>
+        </select>
+      </div>
+      <button class="btn btn-p" onclick="saveGasConfig()">💾 設定を保存</button>
+      <div id="freee-save-msg" style="display:inline-block;margin-left:12px;font-size:13px"></div>
+    </div>
+
+    <!-- STEP 4: freee認証 -->
+    <div class="tbl-wrap" style="padding:20px 24px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">STEP 4　freeeにログインして認証する</div>
+      <div style="font-size:13px;color:#6B6966;margin-bottom:14px;line-height:1.7">
+        GAS URLを設定・保存したら、下のボタンでfreeeの認証画面を開きます。<br>
+        ログインして「許可する」を押すと認証完了です。
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn" style="background:#3d5afe;border-color:#2a3eb1;color:#fff;font-weight:600" onclick="startFreeeAuth()">
+          🔑 freeeで認証する
+        </button>
+        <button class="btn" onclick="checkFreeeAuthStatus()">🔌 認証状態を確認</button>
+        <button class="btn" onclick="revokeFreeeAuth()" style="color:#C0392B;border-color:#C0392B">ログアウト</button>
+      </div>
+      <div id="freee-auth-status" style="margin-top:12px;font-size:13px"></div>
+    </div>
+
+  </div>`;
+}
+
+function saveGasConfig(){
+  const gasUrl = document.getElementById('freee-gas-url').value.trim();
+  const companyId = document.getElementById('freee-company-id').value.trim();
+  const taxCode = document.getElementById('freee-taxcode').value;
+  if(!gasUrl||!companyId){alert('GAS URLと事業所IDは必須です');return}
+  saveFreeeSettings({gasUrl, companyId, taxCode});
+  const msg = document.getElementById('freee-save-msg');
+  msg.innerHTML='<span style="color:#1D9E75">✅ 保存しました</span>';
+  setTimeout(()=>{msg.innerHTML=''},3000);
+}
+
+async function startFreeeAuth(){
+  const statusEl = document.getElementById('freee-auth-status');
+  statusEl.innerHTML='<span style="color:#6B6966">認証URLを取得中...</span>';
+  try{
+    const data = await gasRequest('auth_url');
+    if(data.auth_url){
+      statusEl.innerHTML='<span style="color:#1555A0">🔗 freee認証画面を新しいタブで開きます。ログインして「許可する」を押してください。</span>';
+      window.open(data.auth_url,'_blank','width=600,height=700');
+    } else {
+      statusEl.innerHTML=`<span style="color:#C0392B">❌ エラー：${data.error||'URL取得失敗'}</span>`;
+    }
+  } catch(e){
+    statusEl.innerHTML=`<span style="color:#C0392B">❌ ${e.message}</span>`;
+  }
+}
+
+async function checkFreeeAuthStatus(){
+  const statusEl = document.getElementById('freee-auth-status');
+  statusEl.innerHTML='<span style="color:#6B6966">確認中...</span>';
+  try{
+    const data = await gasRequest('status');
+    if(data.authorized){
+      statusEl.innerHTML='<span style="color:#1D9E75">✅ freeeと認証済みです。請求書の送信が可能です。</span>';
+    } else {
+      statusEl.innerHTML='<span style="color:#954E0E">⚠️ 未認証です。「freeeで認証する」ボタンを押してください。</span>';
+    }
+  } catch(e){
+    statusEl.innerHTML=`<span style="color:#C0392B">❌ ${e.message}</span>`;
+  }
+}
+
+async function revokeFreeeAuth(){
+  if(!confirm('freeeの認証を解除しますか？'))return;
+  try{
+    await gasRequest('logout');
+    document.getElementById('freee-auth-status').innerHTML='<span style="color:#6B6966">ログアウトしました</span>';
+  } catch(e){
+    alert(e.message);
+  }
+}
+
+function copyForFreee(billingId){
+  const b=DB.billing.find(x=>x.id===billingId);
+  const cl=b?DB.clients.find(c=>c.id===b.clientId):null;
+  if(!b||!cl){alert('データが見つかりません');return}
+
+  const taxExcluded=Math.round(b.amount/1.1);
+  const taxAmount=b.amount-taxExcluded;
+  const withholdingTax=b.withholding==='あり'?Math.floor(taxExcluded*0.1021):0;
+  const netAmount=b.amount-withholdingTax;
+
+  openModal('freee入力用データ',`
+  <div style="background:#EBF3FD;border:1px solid #B3D0F5;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1555A0">
+    💡 下の「一括コピー」ボタンでデータをコピーして、freeeの請求書画面に貼り付けてください
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+    ${[
+      ['取引先名',    cl.name],
+      ['件名',        b.title],
+      ['請求日',      b.issueDate||''],
+      ['支払期限',    b.dueDate&&b.dueDate!=='-'?b.dueDate:''],
+      ['品目名',      b.title],
+      ['税抜金額',    taxExcluded.toLocaleString()+'円'],
+      ['消費税（10%）', taxAmount.toLocaleString()+'円'],
+      ['税込合計',    b.amount.toLocaleString()+'円'],
+      ['源泉徴収',    b.withholding==='あり'?withholdingTax.toLocaleString()+'円（税抜×10.21%）':'なし'],
+      ['入金予定額',  netAmount.toLocaleString()+'円'],
+      ['備考',        b.memo||''],
+    ].map(([label,val])=>`
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:11px;color:#6B6966;min-width:100px;flex-shrink:0">${label}</div>
+      <div style="flex:1;background:#F7F6F2;border:1px solid #E2E0D8;border-radius:6px;padding:7px 10px;font-size:13px;font-weight:500;word-break:break-all">${val||''}</div>
+      <button onclick="copyText(this.dataset.val)" data-val="${val}"
+        style="flex-shrink:0;padding:4px 8px;font-size:11px;border:1px solid #C8C6BE;border-radius:5px;background:#fff;cursor:pointer;color:#6B6966"
+        title="コピー">📋</button>
+    </div>`).join('')}
+  </div>
+
+  <div id="copy-toast" style="display:none;background:#EAF5F0;border:1px solid #B2DFD0;border-radius:7px;padding:10px 14px;font-size:13px;color:#0F6E56;margin-bottom:12px;text-align:center">
+    ✅ クリップボードにコピーしました！
+  </div>`,
+
+  `<button class="btn" onclick="closeModal()">閉じる</button>
+   <button class="btn btn-p" style="background:#3d5afe;border-color:#2a3eb1" onclick="copyAllForFreee(${billingId})">📋 一括コピー（テキスト形式）</button>`);
+}
+
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>{
+    showCopyToast();
+  }).catch(()=>{
+    // フォールバック
+    const el=document.createElement('textarea');
+    el.value=text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showCopyToast();
+  });
+}
+
+function showCopyToast(){
+  const t=document.getElementById('copy-toast');
+  if(!t)return;
+  t.style.display='block';
+  setTimeout(()=>{t.style.display='none'},2000);
+}
+
+function copyAllForFreee(billingId){
+  const b=DB.billing.find(x=>x.id===billingId);
+  const cl=b?DB.clients.find(c=>c.id===b.clientId):null;
+  if(!b||!cl)return;
+
+  const taxExcluded=Math.round(b.amount/1.1);
+  const taxAmount=b.amount-taxExcluded;
+  const withholdingTax=b.withholding==='あり'?Math.floor(taxExcluded*0.1021):0;
+  const netAmount=b.amount-withholdingTax;
+
+  const text=[
+    '■ freee請求書入力データ',
+    '─────────────────',
+    `取引先名　：${cl.name}`,
+    `件名　　　：${b.title}`,
+    `請求日　　：${b.issueDate||''}`,
+    `支払期限　：${b.dueDate&&b.dueDate!=='-'?b.dueDate:''}`,
+    '─────────────────',
+    `品目名　　：${b.title}`,
+    `税抜金額　：${taxExcluded.toLocaleString()}円`,
+    `消費税10%：${taxAmount.toLocaleString()}円`,
+    `税込合計　：${b.amount.toLocaleString()}円`,
+    '─────────────────',
+    `源泉徴収　：${b.withholding==='あり'?withholdingTax.toLocaleString()+'円（税抜×10.21%）':'なし'}`,
+    `入金予定額：${netAmount.toLocaleString()}円`,
+    b.memo?`備考　　　：${b.memo}`:'',
+  ].filter(Boolean).join('\n');
+
+  navigator.clipboard.writeText(text).then(()=>{
+    showCopyToast();
+  }).catch(()=>{
+    const el=document.createElement('textarea');
+    el.value=text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showCopyToast();
+  });
+}
+
+
+function sendToFreee(billingId){
+  const s=getFreeeSettings();
+  if(!s.gasUrl||!s.companyId){
+    alert('freee連携の設定が完了していません。\nサイドバーの「freee連携」から設定してください。');
+    return;
+  }
+  const b=DB.billing.find(x=>x.id===billingId);
+  const cl=b?DB.clients.find(c=>c.id===b.clientId):null;
+  if(!b||!cl){alert('データが見つかりません');return}
+
+  const taxExcluded=Math.round(b.amount/1.1);
+  const taxAmount=b.amount-taxExcluded;
+  const withholdingTax=b.withholding==='あり'?Math.floor(taxExcluded*0.1021):0;
+
+  openModal('freeeに請求書を送信',`
+  <div style="background:#F7F6F2;border-radius:8px;padding:14px 16px;margin-bottom:16px">
+    <div style="font-weight:700;margin-bottom:10px;font-size:14px">${b.title}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+      <div><div style="font-size:11px;color:#6B6966">顧客</div><div style="font-weight:600">${cl.name}</div></div>
+      <div><div style="font-size:11px;color:#6B6966">請求日</div><div style="font-weight:600">${b.issueDate||'-'}</div></div>
+      <div><div style="font-size:11px;color:#6B6966">税抜金額</div><div style="font-weight:600">¥${taxExcluded.toLocaleString()}</div></div>
+      <div><div style="font-size:11px;color:#6B6966">消費税（10%）</div><div style="font-weight:600">¥${taxAmount.toLocaleString()}</div></div>
+      <div><div style="font-size:11px;color:#6B6966">税込合計</div><div style="font-weight:700;font-size:16px;color:#1D9E75">¥${b.amount.toLocaleString()}</div></div>
+      <div><div style="font-size:11px;color:#6B6966">源泉徴収</div><div style="font-weight:600">${b.withholding==='あり'?`あり　控除 ¥${withholdingTax.toLocaleString()}`:'なし'}</div></div>
+    </div>
+  </div>
+  <div class="f-row">
+    <label class="f-label">freeeの取引先名</label>
+    <input class="f-input" id="freee-partner-name" value="${cl.name}" placeholder="freee上の取引先名">
+    <div style="font-size:11px;color:#9C9A96;margin-top:4px">freee上に登録されている取引先名に合わせてください</div>
+  </div>
+  <div class="f-row">
+    <label class="f-label">備考</label>
+    <textarea class="f-textarea" id="freee-note" style="min-height:56px" placeholder="請求書備考（任意）">${b.memo||''}</textarea>
+  </div>
+  <div id="freee-send-result"></div>`,
+  `<button class="btn" onclick="closeModal()">キャンセル</button>
+   <button class="btn btn-p" style="background:#3d5afe;border-color:#2a3eb1" onclick="execSendToFreee(${billingId})">📤 freeeに送信</button>`);
+}
+
+async function execSendToFreee(billingId){
+  const s=getFreeeSettings();
+  const b=DB.billing.find(x=>x.id===billingId);
+  const cl=b?DB.clients.find(c=>c.id===b.clientId):null;
+  if(!b||!cl)return;
+
+  const resultEl=document.getElementById('freee-send-result');
+  if(!resultEl)return;
+  resultEl.innerHTML='<div style="color:#6B6966;font-size:13px;margin-top:10px">⏳ freeeに送信中...</div>';
+
+  const partnerName=document.getElementById('freee-partner-name')?.value.trim()||cl.name;
+  const note=document.getElementById('freee-note')?.value.trim()||'';
+  const taxExcluded=Math.round(b.amount/1.1);
+
+  const payload={
+    company_id: parseInt(s.companyId),
+    issue_date: b.issueDate||new Date().toISOString().split('T')[0],
+    due_date: (b.dueDate&&b.dueDate!=='-')?b.dueDate:undefined,
+    partner_name: partnerName,
+    title: b.title,
+    description: note,
+    invoice_lines:[{
+      name: b.title,
+      quantity: 1,
+      unit_price: taxExcluded,
+      tax_code: parseInt(s.taxCode||'101'),
+      account_item_name: '売上高'
+    }]
+  };
+
+  try{
+    const data = await gasRequest('create_invoice', {}, 'POST', payload);
+    if(data.invoice){
+      resultEl.innerHTML=`
+      <div style="background:#EAF5F0;border:1px solid #B2DFD0;border-radius:8px;padding:14px;font-size:13px;margin-top:10px;color:#0F6E56">
+        ✅ freeeに請求書を作成しました！<br>
+        <span style="font-size:12px">請求書番号：${data.invoice.invoice_number||'-'}</span>
+      </div>`;
+    } else if(data.error){
+      resultEl.innerHTML=`<div style="background:#FDECEC;border:1px solid #F5C6C6;border-radius:8px;padding:12px;font-size:13px;margin-top:10px;color:#9B2929">
+        ❌ ${data.error}<br><span style="font-size:11px">freee連携設定またはfreeeの認証状態をご確認ください</span></div>`;
+    }
+  } catch(e){
+    resultEl.innerHTML=`<div style="background:#FDECEC;border:1px solid #F5C6C6;border-radius:8px;padding:12px;font-size:13px;margin-top:10px;color:#9B2929">❌ ${e.message}</div>`;
+  }
+}
+
+</script>
+</body>
+</html>
